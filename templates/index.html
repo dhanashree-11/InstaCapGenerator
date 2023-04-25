@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
+      integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <title>Image caption genrator</title>
+
+    <style>
+      body {
+        width: 100%;
+        height: 100vh;
+        background-image: url("https://t4.ftcdn.net/jpg/04/36/58/65/360_F_436586551_t4B08iIPjUvHvWCu6T1HDfMBn9BcQcSA.jpg");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        display: flex;
+        align-items: center;
+        margin: 0;
+        padding: 0;
+        justify-content: center;
+      }
+      .container {
+        width: 80%;
+        height: 80vh;
+        padding: 30px;
+        border-radius: 30px;
+        backdrop-filter: blur(20px) saturate(76%);
+        -webkit-backdrop-filter: blur(20px) saturate(76%);
+        background-color: rgba(17, 25, 40, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.125);
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 19px 38px,
+          rgba(0, 0, 0, 0.22) 0px 15px 12px;
+        display: flex;
+        flex-direction: row;
+      }
+      .left_child {
+        width: 40%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+      }
+      .child_right {
+        width: 60%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .drop-zone {
+        max-width: 200px;
+        height: 200px;
+        padding: 25px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-family: "Quicksand", sans-serif;
+        font-weight: 500;
+        font-size: 20px;
+        cursor: pointer;
+        color: #cccccc;
+        border: 4px dashed lavender;
+        border-radius: 10px;
+      }
+
+      .drop-zone--over {
+        border-style: solid;
+      }
+
+      .drop-zone__input {
+        display: none;
+      }
+
+      .drop-zone__thumb {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #cccccc;
+        background-size: cover;
+        position: relative;
+      }
+
+      .drop-zone__thumb::after {
+        content: attr(data-label);
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        padding: 5px 0;
+        color: #ffffff;
+        background: rgba(0, 0, 0, 0.75);
+        font-size: 14px;
+        text-align: center;
+      }
+
+      .btn {
+        align-items: center;
+        background-color: #fee6e3;
+        border: 2px solid #111;
+        border-radius: 8px;
+        box-sizing: border-box;
+        color: #111;
+        cursor: pointer;
+        display: flex;
+        font-family: Inter, sans-serif;
+        font-size: 16px;
+        height: 48px;
+        justify-content: center;
+        line-height: 24px;
+        max-width: 100%;
+        padding: 0 25px;
+        position: relative;
+        text-align: center;
+        text-decoration: none;
+        user-select: none;
+        -webkit-user-select: none;
+        touch-action: manipulation;
+        margin-top: 20px;
+      }
+
+      .btn:after {
+        background-color: #111;
+        border-radius: 8px;
+        content: "";
+        display: block;
+        height: 48px;
+        left: 0;
+        width: 100%;
+        position: absolute;
+        top: -2px;
+        transform: translate(8px, 8px);
+        transition: transform 0.2s ease-out;
+        z-index: -1;
+      }
+
+      .btn:hover:after {
+        transform: translate(0, 0);
+      }
+
+      .btn:active {
+        background-color: #ffdeda;
+        outline: 0;
+      }
+
+      .btn:hover {
+        outline: 0;
+      }
+
+      @media (min-width: 768px) {
+        .btn {
+          padding: 0 40px;
+        }
+      }
+
+      #static_heading {
+        color: antiquewhite;
+      }
+      #dynamic_heading {
+        color: aliceblue;
+        opacity: 0.7;
+      }
+
+      .caption_list {
+        width: 100%;
+        overflow-y: scroll;
+      }
+
+      .caption_list::-webkit-scrollbar {
+        width: 3px;
+        background-color: white;
+      }
+
+      .caption_list::-webkit-scrollbar-thumb {
+        background-color: grey;
+      }
+
+      .listit {
+        background-color: beige;
+        width: 80%;
+        color: black;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+        margin-bottom: 15px;
+      }
+    </style>
+  
+  </head>
+  <body>
+    
+    <div class="container">
+      <div class="left_child">
+        <form
+          method="post"
+          action="{{ url_for('runnn') }}"
+          enctype="multipart/form-data"
+        >
+          <div class="drop-zone">
+            <span class="drop-zone__prompt"
+              >Click to upload</span
+            >
+            <input
+              type="file"
+              name="myFile"
+              id="image_input"
+              class="drop-zone__input"
+            />
+          </div>
+
+          <button class="btn" id="btn" type="submit">Get Captions</button>
+        </form>
+      </div>
+      <div class="child_right" id="child_right">
+        {% if response==null %}
+        <h1 id="static_heading">
+          Upload an image to generate captions
+        </h1>
+        {% else %}
+        <h1 id="dynamic_heading">
+          Below are the captions you can use Voila!!!
+        </h1>
+        <div class="caption_list">
+          {% for caption in response.captions %}
+          <div class="listit">{{caption.caption}}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='js/script.js') }}"
+    ></script>
+  
+  </body>
+</html>
